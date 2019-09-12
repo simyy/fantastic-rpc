@@ -12,8 +12,9 @@ import java.io.IOException;
 
 public class PacketFrame {
 
-    private static final int MAGIC_NUMBER = 0x860860;
+    public static final int MAGIC_NUMBER = 0x860860;
 
+    @Deprecated
     public static ByteBuf encode(ByteBufAllocator byteBufAllocator, Serializer serializer, Packet packet)
             throws JsonProcessingException {
         ByteBuf byteBuf = byteBufAllocator.ioBuffer();
@@ -27,8 +28,9 @@ public class PacketFrame {
         return byteBuf;
     }
 
+    @Deprecated
     public static Packet decode(ByteBuf byteBuf) throws IllegalAccessException, InstantiationException, IOException {
-        byteBuf.skipBytes(3); // 跳过MAGIC_NUMBER
+        byteBuf.readInt(); // 跳过MAGIC_NUMBER
         int serializeTypeCode = byteBuf.readInt(); // 序列化类型
         int packetTypeCode = byteBuf.readInt(); // 数据类型
         int packetLength = byteBuf.readInt(); // 数据包长度

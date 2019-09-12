@@ -1,5 +1,9 @@
 package com.github.fantasticlab.rpc.core.net;
 
+import com.github.fantasticlab.rpc.core.context.InvokeRequestContext;
+import com.github.fantasticlab.rpc.core.context.InvokeResponseContext;
+import com.github.fantasticlab.rpc.core.net.protocol.ReqPacket;
+import com.github.fantasticlab.rpc.core.net.protocol.RespPacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
@@ -15,27 +19,25 @@ public class NettyClientChannelHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        System.out.println("NettyClient ["
-                + ctx.channel().remoteAddress()
-                + "] connected");
+        System.out.println("NettyClient\t" + ctx.channel().remoteAddress() + "\tconnected");
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        System.out.println("NettyClient ["
-                + ctx.channel().remoteAddress()
-                + "] closed");
+        System.out.println("NettyClient\t" + ctx.channel().remoteAddress() + "\tclosed");
         ctx.channel().close();
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        ByteBuf byteBuf = (ByteBuf) msg;
-        System.out.println("NettyClient ["
-                + ctx.channel().remoteAddress()
-                + "] read \n-------------\n"
-                + byteBuf.toString(Charset.defaultCharset())
+        RespPacket respPacket = (RespPacket) msg;
+        System.out.println("NettyClient \t" + ctx.channel().remoteAddress()
+                + "\tread \n-------------\n"
+                + respPacket.toString()
                 + "\n-------------");
+
+        // TODO how to return result
+
 //        ctx.channel().writeAndFlush(Unpooled.copiedBuffer("I had recevied (from Java Client)!".getBytes()));
     }
 }

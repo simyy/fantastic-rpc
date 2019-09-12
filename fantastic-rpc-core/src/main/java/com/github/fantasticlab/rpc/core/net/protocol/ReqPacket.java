@@ -9,6 +9,10 @@ public class ReqPacket extends Packet {
 
     private String method;
 
+    private Class<?>[] argTypes;
+
+    private Object[] args;
+
     @Override
     public PacketType getType() {
         return PacketType.Request;

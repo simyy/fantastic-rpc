@@ -1,17 +1,15 @@
 package com.github.fantasticlab.rpc.core.net;
 
+import com.github.fantasticlab.rpc.core.net.protocol.Packet;
+import com.github.fantasticlab.rpc.core.net.protocol.ReqPacket;
+import com.github.fantasticlab.rpc.core.serialize.JsonSerializer;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.channel.unix.DomainSocketAddress;
-
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 
 public class NettyClient {
 
@@ -38,7 +36,10 @@ public class NettyClient {
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel channel) throws Exception {
-                        channel.pipeline().addLast(new NettyClientChannelHandler());
+                        ChannelPipeline cp = channel.pipeline();
+                        cp.addLast(new NettyEncoder(new JsonSerializer()));
+                        cp.addLast(new NettyDecoder(new JsonSerializer()));
+                        cp.addLast(new NettyClientChannelHandler());
                     }
                 });
     }
@@ -62,17 +63,19 @@ public class NettyClient {
         this.channel = future.sync().channel();
     }
 
-
-    public void send(String msg) {
-        this.channel.writeAndFlush(Unpooled.copiedBuffer(msg.getBytes()));
+    public void send(Packet packet) {
+        this.channel.writeAndFlush(packet);
     }
 
     public static void main(String[] args) throws InterruptedException {
 
         NettyClient client = new NettyClient("127.0.0.1", 8080);
         client.connect();
-        client.send("I'm Java Client 111 !!!");
-        client.send("I'm Java Client 222 !!!");
+
+        ReqPacket reqPacket = new ReqPacket();
+        reqPacket.setService("HelloService");
+        reqPacket.setMethod("sayHi");
+        client.send(reqPacket);
 
     }
 

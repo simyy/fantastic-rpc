@@ -1,5 +1,7 @@
 package com.github.fantasticlab.rpc.core.net;
 
+import com.github.fantasticlab.rpc.core.provider.ServiceRegistry;
+import com.github.fantasticlab.rpc.core.serialize.JsonSerializer;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -18,9 +20,12 @@ public class NettyServer{
 
     private int port;
 
+    private ServiceRegistry serviceRegistry;
 
-    public NettyServer(int port) {
+
+    public NettyServer(int port, ServiceRegistry serviceRegistry) {
         this.port = port;
+        this.serviceRegistry = serviceRegistry;
     }
 
     public void start() throws InterruptedException {
@@ -35,7 +40,10 @@ public class NettyServer{
                 .childOption(ChannelOption.TCP_NODELAY, true)
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     protected void initChannel(SocketChannel channel) throws Exception {
-                        channel.pipeline().addLast(new NettyServerChannelHandler());
+                        ChannelPipeline cp = channel.pipeline();
+                        cp.addLast(new NettyEncoder(new JsonSerializer()));
+                        cp.addLast(new NettyDecoder(new JsonSerializer()));
+                        cp.addLast(new NettyServerChannelHandler(serviceRegistry));
                     }
                 });
 
@@ -54,7 +62,7 @@ public class NettyServer{
     }
 
     public static void main(String[] args) throws InterruptedException {
-        NettyServer server = new NettyServer(8080);
+        NettyServer server = new NettyServer(8080, null);
         server.start();
     }
 }

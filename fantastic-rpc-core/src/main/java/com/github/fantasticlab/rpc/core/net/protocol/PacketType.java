@@ -16,11 +16,11 @@ public enum  PacketType {
         this.clazz = clazz;
     }
 
-    int code() {
+    public int code() {
         return code;
     }
 
-    Class<? extends Packet> clazz() {
+    public Class<? extends Packet> clazz() {
         return clazz;
     }
 

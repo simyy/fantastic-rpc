@@ -5,9 +5,19 @@ import lombok.Data;
 @Data
 public class RespPacket extends Packet {
 
+    private String service;
+
+    private String method;
+
+    private Class<?>[] argTypes;
+
+    private Object[] args;
+
+    private Object returnObj;
+
     @Override
     public PacketType getType() {
-        return PacketType.Request;
+        return PacketType.Response;
     }
 
 }

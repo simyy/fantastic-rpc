@@ -104,9 +104,9 @@ public class ServiceRegistryImpl implements ServiceRegistry {
     public static void main(String[] args) throws InvokeException {
 
         ZkClient zkClient = new ZkClientImpl();
-        ZKProviderRegistry zkProviderRegistry = new ZKProviderRegistry(zkClient);
+        ProviderRegistry providerRegistry = new ZKProviderRegistry(zkClient);
 
-        ServiceRegistry serviceRegistry = new ServiceRegistryImpl("test", zkProviderRegistry);
+        ServiceRegistry serviceRegistry = new ServiceRegistryImpl("test", providerRegistry);
 
         serviceRegistry.register(HelloService.class);
 
