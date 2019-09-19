@@ -11,4 +11,18 @@ public class ProviderNode extends BaseNode {
 
 //    private List<String> methods;
 
+
+    @Override
+    public String toString() {
+        return "ProviderNode{" +
+                "nodeType=" + nodeType +
+                ", nodeType=" + nodeType +
+                ", nodeKey='" + nodeKey + '\'' +
+                ", group='" + group + '\'' +
+                ", service='" + service + '\'' +
+                ", address='" + address + '\'' +
+                ", registerTime=" + registerTime +
+                ", refreshTime=" + refreshTime +
+                '}';
+    }
 }

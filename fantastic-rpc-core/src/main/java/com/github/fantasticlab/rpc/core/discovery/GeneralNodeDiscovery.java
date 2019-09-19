@@ -1,12 +1,12 @@
 package com.github.fantasticlab.rpc.core.discovery;
 
-import com.github.fantasticlab.rpc.core.Discovery;
+import com.github.fantasticlab.rpc.core.NodeDiscovery;
 import com.github.fantasticlab.rpc.core.DiscoveryWatcher;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class GeneralDiscovery implements Discovery {
+public class GeneralNodeDiscovery implements NodeDiscovery {
 
     private String service;
 
@@ -14,7 +14,7 @@ public class GeneralDiscovery implements Discovery {
 
     private List<DiscoveryWatcher> watchers = new CopyOnWriteArrayList<>();
 
-    public GeneralDiscovery(String service, String group, List<DiscoveryWatcher> watchers) {
+    public GeneralNodeDiscovery(String service, String group, List<DiscoveryWatcher> watchers) {
         this.service = service;
         this.group = group;
         this.watchers = watchers;

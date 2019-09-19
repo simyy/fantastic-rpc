@@ -1,13 +1,14 @@
 package com.github.fantasticlab.rpc.core;
 
+import com.github.fantasticlab.rpc.core.exception.InvokeException;
+import com.github.fantasticlab.rpc.core.meta.ProviderNode;
+
+import java.util.List;
+
 public interface Discovery {
 
-    String getService();
+    List<ProviderNode> find(String service, String group) throws InvokeException;
 
-    String getGroup();
-
-    void addWatcher(DiscoveryWatcher watcher);
-
-    void removeWatcher(DiscoveryWatcher watcher);
+    List<ProviderNode> loadProviderNodes(String service, String group);
 
 }

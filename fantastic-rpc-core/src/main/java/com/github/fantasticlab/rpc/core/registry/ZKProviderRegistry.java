@@ -32,21 +32,23 @@ public class ZKProviderRegistry extends ZKAbstractRegister implements ProviderRe
         super.unregisterNode(node);
     }
 
-
-    public static void main(String[] args) throws RegistryException, InterruptedException {
+    public static void testRegister(ZkClient zkClient, String service, String group, String address) throws RegistryException, InterruptedException {
 
         ProviderNode providerNode = new ProviderNode();
-        providerNode.setService("helloService");
-        providerNode.setGroup("test");
-        providerNode.setAddress("127.0.0.1:8000");
+        providerNode.setService(service);
+        providerNode.setGroup(group);
+        providerNode.setAddress(address);
         providerNode.setNodeType(NodeType.PROVIDER);
-
-        ZkClient zkClient = new ZkClientImpl();
 
         ZKProviderRegistry registry = new ZKProviderRegistry(zkClient);
         registry.register(providerNode);
+    }
 
-        Thread.sleep(30000);
+
+    public static void main(String[] args) throws RegistryException, InterruptedException {
+
+        ZkClient zkClient = new ZkClientImpl();
+        ZKProviderRegistry.testRegister(zkClient, "hello", "test", "127.0.0.1:8000");
 
     }
 }

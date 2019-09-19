@@ -1,5 +1,6 @@
 package com.github.fantasticlab.rpc.core.provider;
 
+import com.github.fantasticlab.rpc.core.annotation.Frpc;
 import com.github.fantasticlab.rpc.core.context.InvokeResponseContext;
 import com.github.fantasticlab.rpc.core.exception.InvokeException;
 import com.github.fantasticlab.rpc.core.exception.RegistryException;
@@ -7,11 +8,13 @@ import com.github.fantasticlab.rpc.core.context.InvokeRequestContext;
 import com.github.fantasticlab.rpc.core.meta.ProviderNode;
 import com.github.fantasticlab.rpc.core.registry.ProviderRegistry;
 import com.github.fantasticlab.rpc.core.registry.ZKProviderRegistry;
+import com.github.fantasticlab.rpc.core.test.HelloService;
 import com.github.fantasticlab.rpc.core.util.NetUtils;
 import com.github.fantasticlab.rpc.core.zookeeper.ZkClient;
 import com.github.fantasticlab.rpc.core.zookeeper.ZkClientImpl;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.springframework.stereotype.Component;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -46,16 +49,38 @@ public class ServiceRegistryImpl implements ServiceRegistry {
         try {
             Object service = clazz.newInstance();
             ServiceNode serviceNode = new ServiceNode(service, clazz);
-            serviceMap.put(clazz.getSimpleName(), serviceNode);
+
+            Frpc frpc = clazz.getAnnotation(Frpc.class);
+            String registerValue = frpc.value();
+
+            serviceMap.put(registerValue, serviceNode);
 
             ProviderNode providerNode = new ProviderNode();
-            providerNode.setService(clazz.getSimpleName());
+            providerNode.setService(registerValue);
             providerNode.setGroup(this.group);
             providerNode.setAddress(NetUtils.getLocalIp() + ":" + NetUtils.getLocalUnusedPort());
             long now = new Date().getTime();
             providerNode.setRegisterTime(now);
             providerNode.setRefreshTime(now);
             providerRegistry.register(providerNode);
+
+//            Class<?>[] interfaces = clazz.getInterfaces();
+//            for (Class<?> inter : interfaces) {
+//                String interfaceName = inter.getName();
+//                serviceMap.put(interfaceName, serviceNode);
+//
+//                ProviderNode providerNode = new ProviderNode();
+//                providerNode.setService(interfaceName);
+//                providerNode.setGroup(this.group);
+//                providerNode.setAddress(NetUtils.getLocalIp() + ":" + NetUtils.getLocalUnusedPort());
+//                long now = new Date().getTime();
+//                providerNode.setRegisterTime(now);
+//                providerNode.setRefreshTime(now);
+//                providerRegistry.register(providerNode);
+//            }
+
+
+
 
         } catch (InstantiationException e) {
             e.printStackTrace();
@@ -87,18 +112,6 @@ public class ServiceRegistryImpl implements ServiceRegistry {
         }
 
         return null;
-    }
-
-    public static class HelloService {
-
-        public void sayHi() {
-            System.out.println("Hi!!!");
-        }
-
-        public void sayHi(String name) {
-            System.out.println("Hi!!! " + name);
-        }
-
     }
 
     public static void main(String[] args) throws InvokeException {

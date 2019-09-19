@@ -1,87 +1,65 @@
 package com.github.fantasticlab.rpc.core.zookeeper;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
+
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
+import static org.apache.zookeeper.Watcher.Event.EventType.NodeCreated;
+import static org.apache.zookeeper.Watcher.Event.EventType.NodeDeleted;
 
 @Slf4j
 public class ZKWatcher implements Watcher {
 
     private ZooKeeper zk;
 
-    public ZKWatcher(ZooKeeper zk) {
+    private Supplier eventHandler;
+
+    public ZKWatcher(ZooKeeper zk, Supplier eventHandler) {
         this.zk = zk;
+        this.eventHandler = eventHandler;
     }
 
     @Override
     public void process(WatchedEvent event) {
-        System.out.println("==============> ZKWatcher event start <==============");
-        // 循环监听
+        System.out.println("Notify\t" + event);
+        // handle message
+        eventHandler.get();
+        // set next watcher
         try {
-            this.zk.getChildren(event.getPath(), true);
-        } catch (Exception e) {
+            setNextWatcher(event);
+        } catch (KeeperException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        print(event);
     }
 
-    private void print(WatchedEvent event) {
+    private void setNextWatcher(WatchedEvent event) throws KeeperException, InterruptedException {
 
         Event.EventType type = event.getType();
-        Event.KeeperState state = event.getState();
-        System.out.println("Path\t" + event.getPath());
-        System.out.println("Type:\t" + type.getIntValue());
-        System.out.println("State:\t" + state.getIntValue());
+        String path = event.getPath();
         switch (type) {
             case NodeCreated:
-                System.out.println("NodeCreated");
                 break;
             case NodeDeleted:
-                System.out.println("NodeDeleted");
                 break;
             case NodeDataChanged:
-                System.out.println("NodeDataChanged");
                 break;
             case NodeChildrenChanged:
-                System.out.println("NodeChildrenChanged");
+                this.zk.getChildren(path, this);
                 break;
             case DataWatchRemoved:
-                System.out.println("DataWatchRemoved");
                 break;
             case ChildWatchRemoved:
-                System.out.println("ChildWatchRemoved");
                 break;
             default:
-                System.out.println("Default");
                 break;
         }
-        switch (state) {
-            case Disconnected:
-                System.out.println("Disconnected");
-                break;
-            case SyncConnected:
-                System.out.println("SyncConnected");
-                break;
-            case AuthFailed:
-                System.out.println("AuthFailed");
-                break;
-            case ConnectedReadOnly:
-                System.out.println("ConnectedReadOnly");
-                break;
-            case SaslAuthenticated:
-                System.out.println("SaslAuthenticated");
-                break;
-            case Expired:
-                System.out.println("Expired");
-                break;
-            case Closed:
-                System.out.println("Closed");
-                break;
-            default:
-                System.out.println("Default");
-                break;
-        }
-        System.out.println("==============> ZKWatcher event end   <==============");
     }
+
 }

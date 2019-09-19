@@ -9,4 +9,16 @@ public class PathUtil {
                 + "/" + node.getAddress();
     }
 
+    public static String buildProviderPath(String service, String group) {
+        return  "/frpc/" + group
+                + "/" + NodeType.PROVIDER.tag()
+                + "/" + service;
+    }
+
+    public static String buildConsumerPath(String service, String group) {
+        return  "/frpc/" + group
+                + "/" + NodeType.CONSUMER.tag()
+                + "/" + service;
+    }
+
 }
