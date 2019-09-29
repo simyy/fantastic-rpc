@@ -9,6 +9,6 @@ public interface Discovery {
 
     List<ProviderNode> find(String service, String group) throws FrpcInvokeException;
 
-    List<ProviderNode> loadProviderNodes(String service, String group);
+    List<ProviderNode> find(String service, String group, boolean autoRetry) throws FrpcInvokeException;
 
 }

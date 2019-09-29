@@ -1,5 +1,6 @@
 package com.github.fantasticlab.rpc.core.net;
 
+import com.github.fantasticlab.rpc.core.exception.FrpcRegistryException;
 import com.github.fantasticlab.rpc.core.net.protocol.Packet;
 import com.github.fantasticlab.rpc.core.net.protocol.ReqPacket;
 import com.github.fantasticlab.rpc.core.serialize.JsonSerializer;
@@ -30,8 +31,12 @@ public class NettyClient {
 
     private ConcurrentHashMap<String, SynchronousQueue<Object>> returnObjMap = new ConcurrentHashMap<>();
 
-    public NettyClient(String host, int port) {
+    @FunctionalInterface
+    public interface ClosedCallback {
+        void run();
+    }
 
+    public NettyClient(String host, int port, ClosedCallback closedCallback) {
         this.host = host;
         this.port = port;
         this.bootstrap = new Bootstrap();
@@ -46,7 +51,7 @@ public class NettyClient {
                         ChannelPipeline cp = channel.pipeline();
                         cp.addLast(new NettyEncoder(new JsonSerializer()));
                         cp.addLast(new NettyDecoder(new JsonSerializer()));
-                        cp.addLast(new NettyClientChannelHandler(returnObjMap));
+                        cp.addLast(new NettyClientChannelHandler(returnObjMap, closedCallback));
                     }
                 });
     }
@@ -100,7 +105,7 @@ public class NettyClient {
 
     public static void main(String[] args) throws InterruptedException {
 
-        NettyClient client = new NettyClient("127.0.0.1", 8080);
+        NettyClient client = new NettyClient("127.0.0.1", 8080, null);
         client.connect();
 
         ReqPacket reqPacket = new ReqPacket();

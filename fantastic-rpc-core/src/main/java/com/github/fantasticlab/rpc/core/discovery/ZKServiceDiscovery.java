@@ -22,15 +22,21 @@ public class ZKServiceDiscovery extends AbstractDiscovery implements Discovery {
 
     private ZkClient zkClient;
 
-    public ZKServiceDiscovery(ZkClient zkClient) {
+    public ZKServiceDiscovery(ZkClient zkClient, RetryCallback retryCallback) {
+        super(retryCallback);
         this.zkClient = zkClient;
     }
 
     @Override
     public List<ProviderNode> find(String service, String group) throws FrpcInvokeException {
-        List<ProviderNode> nodes = loadProviderNodes(service, group);
+        return find(service, group, true);
+    }
+
+    @Override
+    public List<ProviderNode> find(String service, String group, boolean autoRetry) throws FrpcInvokeException {
+        List<ProviderNode> nodes = loadProviderNodes(service, group, autoRetry);
         try {
-            zkClient.addWatcher(service, group, NodeType.PROVIDER, () -> loadProviderNodes(service, group));
+            zkClient.addWatcher(service, group, NodeType.PROVIDER, () -> loadProviderNodes(service, group, true));
         } catch (FrpcZkException e) {
             String errMsg = "Discovery find failed";
             log.error(errMsg, e);
@@ -39,8 +45,7 @@ public class ZKServiceDiscovery extends AbstractDiscovery implements Discovery {
         return nodes;
     }
 
-    @Override
-    public List<ProviderNode> loadProviderNodes(String service, String group) {
+    private List<ProviderNode> loadProviderNodes(String service, String group, boolean autoRetry) {
         String path = PathUtil.buildProviderPath(service, group);
         List<ProviderNode> nodes = discoveryMap.get(path);
         if (nodes == null) {
@@ -48,19 +53,27 @@ public class ZKServiceDiscovery extends AbstractDiscovery implements Discovery {
                 nodes = discoveryMap.get(path);
                 if (nodes == null) {
 
-                    List<String> addressList = null;
+                    List<String> addressList;
                     try {
                         addressList = zkClient.findAddress(service, group, NodeType.PROVIDER);
                     } catch (FrpcZkException e) {
-                        log.error("Discovery load nodes failed {}/{}/{}", service, group, NodeType.PROVIDER.tag(), e);
-                        retryNodeQueue.add(new RetryNode(service, group));
+                            log.error("Discovery load nodes failed {}/{}/{}", service, group, NodeType.PROVIDER.tag(), e);
+                        if (autoRetry) {
+                            retryNodeQueue.add(new RetryNode(service, group));
+                        }
+                        return new ArrayList<>();
+                    }
+
+                    if (CollectionUtils.isEmpty(addressList)) {
+                        log.error("Discovery load nodes failed {}/{}/{} not exist", service, group, NodeType.PROVIDER.tag());
+                        if (autoRetry) {
+                            retryNodeQueue.add(new RetryNode(service, group));
+                        }
                         return new ArrayList<>();
                     }
 
                     log.info("Discovery:\t" + path + "\t\tAddress:\t" + addressList);
-                    if (CollectionUtils.isEmpty(addressList)) {
-                        return new ArrayList<>();
-                    }
+
                     nodes = addressList.stream()
                             .map(address -> {
                                 ProviderNode node = new ProviderNode();
@@ -88,7 +101,7 @@ public class ZKServiceDiscovery extends AbstractDiscovery implements Discovery {
 //        System.out.print("Register\t127.0.0.1:8000\n");
 //        ZKProviderRegistry.testRegister(zkClient, "hello", "test", "127.0.0.1:8000");
 
-        ZKServiceDiscovery zkServiceDiscovery = new ZKServiceDiscovery(zkClient);
+        ZKServiceDiscovery zkServiceDiscovery = new ZKServiceDiscovery(zkClient, null);
         List<ProviderNode> nodes = zkServiceDiscovery.find("hello", "test");
         Thread.sleep(2000);
         System.out.print("Register\t127.0.0.2:8000\n");

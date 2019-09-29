@@ -1,5 +1,6 @@
 package com.github.fantasticlab.rpc.core.net;
 
+import com.github.fantasticlab.rpc.core.exception.FrpcClosedException;
 import com.github.fantasticlab.rpc.core.net.protocol.RespPacket;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -13,9 +14,12 @@ import java.util.concurrent.SynchronousQueue;
 public class NettyClientChannelHandler extends ChannelInboundHandlerAdapter {
 
     private ConcurrentHashMap<String, SynchronousQueue<Object>> returnObjMap;
+    private NettyClient.ClosedCallback closedCallback;
 
-    public NettyClientChannelHandler(ConcurrentHashMap<String, SynchronousQueue<Object>> returnObjMap) {
+    public NettyClientChannelHandler(ConcurrentHashMap<String, SynchronousQueue<Object>> returnObjMap,
+                                     NettyClient.ClosedCallback closedCallback) {
         this.returnObjMap = returnObjMap;
+        this.closedCallback = closedCallback;
     }
 
     @Override
@@ -27,6 +31,7 @@ public class NettyClientChannelHandler extends ChannelInboundHandlerAdapter {
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         log.info("NettyClient\t" + ctx.channel().remoteAddress() + "\tclosed");
         ctx.channel().close();
+        closedCallback.run();
     }
 
     @Override

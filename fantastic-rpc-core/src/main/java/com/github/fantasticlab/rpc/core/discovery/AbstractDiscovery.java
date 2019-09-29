@@ -3,6 +3,7 @@ package com.github.fantasticlab.rpc.core.discovery;
 import com.github.fantasticlab.rpc.core.Discovery;
 import com.github.fantasticlab.rpc.core.exception.FrpcInvokeException;
 import com.github.fantasticlab.rpc.core.meta.ProviderNode;
+import com.github.fantasticlab.rpc.core.util.ClientUtils;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -26,13 +27,22 @@ public abstract class AbstractDiscovery implements Discovery {
 
     protected Thread retryThread;
 
-    public AbstractDiscovery() {
-        running.set(true);
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+    protected RetryCallback retryCallback;
+
+    @FunctionalInterface
+    public interface RetryCallback {
+        void run(String clientKey, String server, List<ProviderNode> nodes) throws InterruptedException;
+    }
+
+
+    public AbstractDiscovery(RetryCallback retryCallback) {
+        this.retryCallback = retryCallback;
+        this.running.set(true);
+//        try {
+//            Thread.sleep(5000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
         retryThread = new Thread(() -> retryFailedNode());
         retryThread.setDaemon(true);
         retryThread.start();
@@ -49,14 +59,7 @@ public abstract class AbstractDiscovery implements Discovery {
 
         while (true) {
 
-            log.debug("Discovery loop retry start ...");
-
-            // loop scan between 5 seconds
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                // ignore
-            }
+            log.info("Discovery loop retry start ...");
 
             List<RetryNode> faildNodeList = new ArrayList<>();
 
@@ -64,8 +67,11 @@ public abstract class AbstractDiscovery implements Discovery {
                 RetryNode node = retryNodeQueue.poll();
                 if (node != null) {
                     try {
-                        find(node.service, node.group);
-                    } catch (FrpcInvokeException e) {
+                        List<ProviderNode> nodes = find(node.service, node.group, false);
+                        if (nodes != null && nodes.size() > 0) {
+                            this.retryCallback.run(ClientUtils.buildClientKey(nodes.get(0)), node.service, nodes);
+                        }
+                    } catch (FrpcInvokeException | InterruptedException e) {
                         log.error("Discovery retry failed {}/{}", node.service, node.group, e);
                         faildNodeList.add(node);
                     }
@@ -76,7 +82,14 @@ public abstract class AbstractDiscovery implements Discovery {
                 retryNodeQueue.addAll(faildNodeList);
             }
 
-            log.debug("Discovery loop retry end");
+            log.info("Discovery loop retry end");
+
+            // loop scan between 5 seconds
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                // ignore
+            }
         }
     }
 

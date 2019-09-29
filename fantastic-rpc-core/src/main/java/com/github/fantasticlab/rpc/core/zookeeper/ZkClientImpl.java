@@ -19,7 +19,7 @@ public class ZkClientImpl implements ZkClient {
     public ZkClientImpl(String address) throws FrpcZkException {
 
         try {
-            this.zk = new ZooKeeper(address, 2000, null);
+            this.zk = new ZooKeeper(address, 20000, null);
             createPersistentNode(PREFIX);
         } catch (Exception e) {
             String errMsg = "Zookeeper connect failed";
