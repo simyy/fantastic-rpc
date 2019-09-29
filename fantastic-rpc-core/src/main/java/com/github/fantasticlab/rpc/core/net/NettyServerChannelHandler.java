@@ -23,14 +23,14 @@ public class NettyServerChannelHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        System.out.println("NettyServer\t"
+        log.info("NettyServer\t"
                 + ctx.channel().remoteAddress()
                 + "\tconnected");
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        System.out.println("NettyServer\t"
+        log.info("NettyServer\t"
                 + ctx.channel().remoteAddress()
                 + "\tclosed");
         ctx.channel().close();
@@ -38,7 +38,7 @@ public class NettyServerChannelHandler extends ChannelInboundHandlerAdapter {
 
 //    @Override
 //    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-//        System.out.println("NettyServer\t"
+//        log.info("NettyServer\t"
 //                + ctx.channel().remoteAddress()
 //                + "\tread complete");
 //        ctx.flush();
@@ -47,12 +47,17 @@ public class NettyServerChannelHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         ReqPacket reqPacket = (ReqPacket) msg;
-        System.out.println("NettyServer\t"
+        log.info("NettyServer\t"
                 + ctx.channel().remoteAddress()
                 + "\tread \n-------------\n"
                 + msg.toString()
                 + "\n-------------");
 
+        if (reqPacket.isHeartbeat()) {
+            return;
+        }
+
+        /*******   For Test   *******/
         if (serviceRegistry == null) {
             RespPacket respPacket = new RespPacket();
             BeanUtils.copyProperties(reqPacket, respPacket);
@@ -61,6 +66,7 @@ public class NettyServerChannelHandler extends ChannelInboundHandlerAdapter {
             ctx.channel().writeAndFlush(respPacket);
             return;
         }
+        /*******   For Test   *******/
 
         InvokeRequestContext context = new InvokeRequestContext();
         context.setService(reqPacket.getService());

@@ -6,11 +6,7 @@ import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
 
-import java.util.function.Consumer;
 import java.util.function.Supplier;
-
-import static org.apache.zookeeper.Watcher.Event.EventType.NodeCreated;
-import static org.apache.zookeeper.Watcher.Event.EventType.NodeDeleted;
 
 @Slf4j
 public class ZKWatcher implements Watcher {
@@ -26,7 +22,7 @@ public class ZKWatcher implements Watcher {
 
     @Override
     public void process(WatchedEvent event) {
-        System.out.println("Notify\t" + event);
+        log.info("Zookeeper Watcher notify\t" + event);
         // handle message
         eventHandler.get();
         // set next watcher

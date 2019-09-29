@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.net.InetSocketAddress;
 
 @Slf4j
-public class NettyServer{
+public class NettyServer {
 
     private static final EventLoopGroup masterGroup = new NioEventLoopGroup(1);
 
@@ -50,9 +50,9 @@ public class NettyServer{
         ChannelFuture future = bootstrap.bind(address).sync();
         future.addListener(f -> {
             if (f.isSuccess()) {
-                System.out.println("NettyServer bind [" + this.port  + "] success!");
+                log.info("NettyServer bind [" + this.port  + "] success!");
             } else {
-                System.out.println("NettyServer bind [" + this.port  + "] fail!");
+                log.error("NettyServer bind [" + this.port  + "] fail!");
                 future.cause().printStackTrace();
                 masterGroup.shutdownGracefully();
                 workerGroup.shutdownGracefully();

@@ -4,13 +4,16 @@ import com.github.fantasticlab.rpc.core.net.protocol.Packet;
 import com.github.fantasticlab.rpc.core.net.protocol.ReqPacket;
 import com.github.fantasticlab.rpc.core.serialize.JsonSerializer;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import lombok.extern.slf4j.Slf4j;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.SynchronousQueue;
+
+@Slf4j
 public class NettyClient {
 
     private final EventLoopGroup group = new NioEventLoopGroup();
@@ -22,6 +25,10 @@ public class NettyClient {
     private String host;
 
     private int port;
+
+    private Thread heartbeatThread;
+
+    private ConcurrentHashMap<String, SynchronousQueue<Object>> returnObjMap = new ConcurrentHashMap<>();
 
     public NettyClient(String host, int port) {
 
@@ -39,7 +46,7 @@ public class NettyClient {
                         ChannelPipeline cp = channel.pipeline();
                         cp.addLast(new NettyEncoder(new JsonSerializer()));
                         cp.addLast(new NettyDecoder(new JsonSerializer()));
-                        cp.addLast(new NettyClientChannelHandler());
+                        cp.addLast(new NettyClientChannelHandler(returnObjMap));
                     }
                 });
     }
@@ -50,10 +57,10 @@ public class NettyClient {
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
                 if (future.isSuccess()) {
-                    System.out.println("NettyClient connect server success!");
+                    log.info("NettyClient connect server success!");
 
                 } else {
-                    System.out.println("NettyClient connect server faild!");
+                    log.error("NettyClient connect server faild!");
                     future.cause().printStackTrace();
                     group.shutdownGracefully();
                 }
@@ -61,10 +68,34 @@ public class NettyClient {
             }
         });
         this.channel = future.sync().channel();
+
+        this.heartbeatThread = new Thread(this::heartbeat);
+        this.heartbeatThread.setDaemon(true);
+        this.heartbeatThread.start();
+
     }
 
-    public void send(Packet packet) {
+    public Object send(ReqPacket packet) throws InterruptedException {
+        SynchronousQueue<Object> queue = new SynchronousQueue<>();
+        packet.generateId();
+        returnObjMap.put(packet.getInvokeId(), queue);
         this.channel.writeAndFlush(packet);
+        return queue.take();
+    }
+
+    public void heartbeat() {
+
+        while (true) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ignore) {
+            }
+
+            ReqPacket packet = new ReqPacket();
+            packet.setHeartbeat(true);
+            this.channel.writeAndFlush(packet);
+            log.info("NettyClient heartbeat ...");
+        }
     }
 
     public static void main(String[] args) throws InterruptedException {

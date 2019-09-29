@@ -2,10 +2,7 @@ package com.github.fantasticlab.rpc.core;
 
 import com.github.fantasticlab.rpc.core.net.NettyClient;
 import com.github.fantasticlab.rpc.core.net.protocol.ReqPacket;
-import com.github.fantasticlab.rpc.core.test.HelloService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.proxy.InvocationHandler;
-import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
 

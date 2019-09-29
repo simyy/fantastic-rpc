@@ -2,10 +2,8 @@ package com.github.fantasticlab.rpc.core.annotation;
 
 import com.github.fantasticlab.rpc.core.provider.ServiceRegistry;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.xml.XmlBeanFactory;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 
 import java.util.Map;
 

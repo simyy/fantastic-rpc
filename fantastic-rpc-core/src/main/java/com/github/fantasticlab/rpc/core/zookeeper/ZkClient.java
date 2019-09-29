@@ -1,23 +1,19 @@
 package com.github.fantasticlab.rpc.core.zookeeper;
 
+import com.github.fantasticlab.rpc.core.exception.FrpcZkException;
 import com.github.fantasticlab.rpc.core.meta.NodeType;
-import jdk.nashorn.internal.objects.annotations.Function;
-import org.apache.zookeeper.WatchedEvent;
-import org.apache.zookeeper.ZooKeeper;
 
 import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public interface ZkClient {
 
-    void register(String service, String group, NodeType nodeType, String address);
+    void register(String service, String group, NodeType nodeType, String address) throws FrpcZkException;
 
-    void unregister(String service, String group, NodeType nodeType, String address);
+    void unregister(String service, String group, NodeType nodeType, String address) throws FrpcZkException;
 
-    List<String> findAddress(String service, String group, NodeType nodeType);
+    List<String> findAddress(String service, String group, NodeType nodeType) throws FrpcZkException;
 
-    void addWatcher(String service, String group, NodeType nodeType, Supplier eventHandler);
+    void addWatcher(String service, String group, NodeType nodeType, Supplier eventHandler) throws FrpcZkException;
 
 }

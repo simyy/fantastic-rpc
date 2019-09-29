@@ -2,9 +2,10 @@ package com.github.fantasticlab.rpc.core.provider;
 
 import com.github.fantasticlab.rpc.core.annotation.Frpc;
 import com.github.fantasticlab.rpc.core.context.InvokeResponseContext;
-import com.github.fantasticlab.rpc.core.exception.InvokeException;
-import com.github.fantasticlab.rpc.core.exception.RegistryException;
+import com.github.fantasticlab.rpc.core.exception.FrpcInvokeException;
+import com.github.fantasticlab.rpc.core.exception.FrpcRegistryException;
 import com.github.fantasticlab.rpc.core.context.InvokeRequestContext;
+import com.github.fantasticlab.rpc.core.meta.BaseNode;
 import com.github.fantasticlab.rpc.core.meta.ProviderNode;
 import com.github.fantasticlab.rpc.core.registry.ProviderRegistry;
 import com.github.fantasticlab.rpc.core.registry.ZKProviderRegistry;
@@ -14,7 +15,6 @@ import com.github.fantasticlab.rpc.core.zookeeper.ZkClient;
 import com.github.fantasticlab.rpc.core.zookeeper.ZkClientImpl;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.springframework.stereotype.Component;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -24,6 +24,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ServiceRegistryImpl implements ServiceRegistry {
 
+    private Integer port;
+
     private String group;
 
     private ProviderRegistry providerRegistry;
@@ -31,8 +33,10 @@ public class ServiceRegistryImpl implements ServiceRegistry {
     private Map<String, ServiceNode> serviceMap = new ConcurrentHashMap<>();
 
     public ServiceRegistryImpl(String group,
+                               Integer port,
                                ProviderRegistry providerRegistry) {
         this.group = group;
+        this.port = port;
         this.providerRegistry = providerRegistry;
     }
 
@@ -44,7 +48,7 @@ public class ServiceRegistryImpl implements ServiceRegistry {
     }
 
     @Override
-    public void register(Class<?> clazz) {
+    public void register(Class<?> clazz) throws FrpcRegistryException {
 
         try {
             Object service = clazz.newInstance();
@@ -58,7 +62,8 @@ public class ServiceRegistryImpl implements ServiceRegistry {
             ProviderNode providerNode = new ProviderNode();
             providerNode.setService(registerValue);
             providerNode.setGroup(this.group);
-            providerNode.setAddress(NetUtils.getLocalIp() + ":" + NetUtils.getLocalUnusedPort());
+            BaseNode.Address address = new BaseNode.Address(NetUtils.getLocalIp(), this.port);
+            providerNode.setAddress(address);
             long now = new Date().getTime();
             providerNode.setRegisterTime(now);
             providerNode.setRefreshTime(now);
@@ -86,15 +91,15 @@ public class ServiceRegistryImpl implements ServiceRegistry {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
             e.printStackTrace();
-        } catch (RegistryException e) {
+        } catch (FrpcRegistryException e) {
             e.printStackTrace();
         }
     }
 
     @Override
-    public InvokeResponseContext invoke(InvokeRequestContext context) throws InvokeException {
+    public InvokeResponseContext invoke(InvokeRequestContext context) throws FrpcInvokeException {
         if (!serviceMap.containsKey(context.getService())) {
-            throw new InvokeException();
+            throw new FrpcInvokeException("Service not exist", null);
         }
 
         ServiceNode serviceNode = serviceMap.get(context.getService());
@@ -114,12 +119,12 @@ public class ServiceRegistryImpl implements ServiceRegistry {
         return null;
     }
 
-    public static void main(String[] args) throws InvokeException {
+    public static void main(String[] args) throws Exception {
 
-        ZkClient zkClient = new ZkClientImpl();
+        ZkClient zkClient = new ZkClientImpl("localhost:2181");
         ProviderRegistry providerRegistry = new ZKProviderRegistry(zkClient);
 
-        ServiceRegistry serviceRegistry = new ServiceRegistryImpl("test", providerRegistry);
+        ServiceRegistry serviceRegistry = new ServiceRegistryImpl("test", 8080, providerRegistry);
 
         serviceRegistry.register(HelloService.class);
 

@@ -1,52 +1,43 @@
 package com.github.fantasticlab.rpc.core.zookeeper;
 
+import com.github.fantasticlab.rpc.core.exception.FrpcZkException;
 import com.github.fantasticlab.rpc.core.meta.NodeType;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.zookeeper.*;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+@Slf4j
 public class ZkClientImpl implements ZkClient {
 
     private ZooKeeper zk;
 
     private static final String PREFIX = "/frpc";
 
-    public ZkClientImpl() {
-       init();
-    }
-
-    public ZkClientImpl init() {
-
-        // TODO syncized~~~ dubble check
+    // "localhost:2181" for local test
+    public ZkClientImpl(String address) throws FrpcZkException {
 
         try {
-            this.zk = new ZooKeeper("localhost:2181", 2000, null);
-            try {
-                this.zk.getChildren(PREFIX, true);
-            } catch (KeeperException | InterruptedException e) {
-                // ignore
-            }
+            this.zk = new ZooKeeper(address, 2000, null);
             createPersistentNode(PREFIX);
-
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            String errMsg = "Zookeeper connect failed";
+            log.error(errMsg, e);
+            throw new FrpcZkException(errMsg, e);
         }
-        return this;
     }
 
     @Override
-    public void register(String service, String group, NodeType nodeType, String address) {
+    public void register(String service, String group, NodeType nodeType, String address) throws FrpcZkException {
         createPersistentNode(PathUtil.buildPath(PREFIX, group));
         createPersistentNode(PathUtil.buildPath(PREFIX, group, nodeType.tag()));
         createPersistentNode(PathUtil.buildPath(PREFIX, group, nodeType.tag(), service));
-        createPersistentNode(PathUtil.buildPath(PREFIX, group, nodeType.tag(), service, address));
+        createEphemeralNode(PathUtil.buildPath(PREFIX, group, nodeType.tag(), service, address));
     }
 
 
-    private void createPersistentNode(String path) {
+    private void createPersistentNode(String path) throws FrpcZkException {
         try {
             this.zk.create(
                     path,
@@ -55,15 +46,15 @@ public class ZkClientImpl implements ZkClient {
                     CreateMode.PERSISTENT);
         } catch (KeeperException.NodeExistsException e) {
             // ignore
-        } catch (KeeperException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            String errMsg = "Zookeeper create persistent node failed";
+            log.error(errMsg, e);
+            throw new FrpcZkException(errMsg, e);
         }
+
     }
 
-    private void createEphemeralNode(String path) {
-
+    private void createEphemeralNode(String path) throws FrpcZkException {
         try {
             this.zk.create(
                     path,
@@ -72,61 +63,58 @@ public class ZkClientImpl implements ZkClient {
                     CreateMode.EPHEMERAL);
         } catch (KeeperException.NodeExistsException e) {
             // ignore
-        } catch (KeeperException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            String errMsg = "Zookeeper create ephemeral node failed";
+            log.error(errMsg, e);
+            throw new FrpcZkException(errMsg, e);
         }
-
     }
 
     @Override
-    public void unregister(String service, String group, NodeType nodeType, String address) {
-        // -a delete all node
+    public void unregister(String service, String group, NodeType nodeType, String address) throws FrpcZkException {
+        // -1 delete all node
         try {
             this.zk.delete(PREFIX + "/" + group + "/" + nodeType.tag() + "/" + service + "/" + address, -1);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (KeeperException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            String errMsg = "Zookeeper unregister failed";
+            log.error(errMsg, e);
+            throw new FrpcZkException(errMsg, e);
         }
     }
 
     @Override
-    public List<String> findAddress(String service, String group, NodeType nodeType) {
-
+    public List<String> findAddress(String service, String group, NodeType nodeType) throws FrpcZkException {
         try {
-            return this.zk.getChildren(PREFIX + "/" + group + "/" + nodeType.tag() + "/" + service, null);
-        } catch (KeeperException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            return this.zk.getChildren(PathUtil.buildPath(PREFIX, group, nodeType.tag(), service), null);
+        } catch (Exception e) {
+            String errMsg = "Zookeeper findAddress failed";
+            log.error(errMsg, e);
+            throw new FrpcZkException(errMsg, e);
         }
-        return null;
     }
 
     @Override
-    public void addWatcher(String service, String group, NodeType nodeType, Supplier eventHandler) {
+    public void addWatcher(String service, String group, NodeType nodeType, Supplier eventHandler) throws FrpcZkException {
         addWatcher(
                 PREFIX + "/" + group + "/" + nodeType.tag() + "/" + service,
                 new ZKWatcher(this.zk, eventHandler));
     }
 
-    private void addWatcher(String path, Watcher watcher) {
+    private void addWatcher(String path, Watcher watcher) throws FrpcZkException {
         try {
             this.zk.getChildren(path, watcher);
-        } catch (KeeperException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            String errMsg = "Zookeeper addWatcher failed";
+            log.error(errMsg, e);
+            throw new FrpcZkException(errMsg, e);
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws FrpcZkException {
 
         System.out.println("start");
 
-        ZkClient zkClient = new ZkClientImpl();
+        ZkClient zkClient = new ZkClientImpl("localhost:2181");
         assert zkClient != null;
 
         System.out.println(">>> 1. add watcher");

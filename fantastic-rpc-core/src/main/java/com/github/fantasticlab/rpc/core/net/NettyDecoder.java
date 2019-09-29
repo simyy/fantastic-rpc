@@ -1,22 +1,17 @@
 package com.github.fantasticlab.rpc.core.net;
 
 import com.github.fantasticlab.rpc.core.Serializer;
-import com.github.fantasticlab.rpc.core.context.InvokeRequestContext;
-import com.github.fantasticlab.rpc.core.context.InvokeResponseContext;
 import com.github.fantasticlab.rpc.core.net.protocol.PacketFrame;
 import com.github.fantasticlab.rpc.core.net.protocol.PacketType;
-import com.github.fantasticlab.rpc.core.net.protocol.ReqPacket;
-import com.github.fantasticlab.rpc.core.net.protocol.RespPacket;
-import com.github.fantasticlab.rpc.core.serialize.JsonSerializer;
 import com.github.fantasticlab.rpc.core.serialize.SerializerType;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
-import org.springframework.beans.BeanUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
-
+@Slf4j
 public class NettyDecoder extends ByteToMessageDecoder {
 
     private Serializer serializer;
@@ -36,7 +31,7 @@ public class NettyDecoder extends ByteToMessageDecoder {
             in.markReaderIndex();
             // check magic number
             if (in.readInt() == PacketFrame.MAGIC_NUMBER) {
-                System.out.println("Decode\tfind magic number index=" + index);
+                log.debug("Decode\tfind magic number index=" + index);
                 break;
             }
             in.resetReaderIndex();
@@ -50,7 +45,7 @@ public class NettyDecoder extends ByteToMessageDecoder {
         int serialType = in.readInt();
         int packType = in.readInt();
         int length = in.readInt();
-        System.out.println("Decode\t" + serialType + "\t" + packType + "\t" + length);
+        log.debug("Decode\t" + serialType + "\t" + packType + "\t" + length);
         if (in.readableBytes() < length) {
             // not enough then rollback
             in.readerIndex(index);

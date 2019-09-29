@@ -2,8 +2,12 @@ package com.github.fantasticlab.rpc.core.net.protocol;
 
 import lombok.Data;
 
+import java.util.UUID;
+
 @Data
 public class ReqPacket extends Packet {
+
+    private boolean heartbeat = false;
 
     private String service;
 
@@ -17,4 +21,5 @@ public class ReqPacket extends Packet {
     public PacketType getType() {
         return PacketType.Request;
     }
+
 }

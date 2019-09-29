@@ -1,41 +1,79 @@
 package com.github.fantasticlab.rpc.core;
 
-import com.github.fantasticlab.rpc.core.annotation.FrpcLoader;
+import com.github.fantasticlab.rpc.core.bean.ProviderBean;
+import com.github.fantasticlab.rpc.core.exception.FrpcZkException;
 import com.github.fantasticlab.rpc.core.net.NettyServer;
 import com.github.fantasticlab.rpc.core.provider.ServiceRegistry;
 import com.github.fantasticlab.rpc.core.provider.ServiceRegistryImpl;
 import com.github.fantasticlab.rpc.core.registry.ProviderRegistry;
 import com.github.fantasticlab.rpc.core.registry.ZKProviderRegistry;
-import com.github.fantasticlab.rpc.core.test.HelloService;
 import com.github.fantasticlab.rpc.core.test.HelloServiceImpl;
 import com.github.fantasticlab.rpc.core.zookeeper.ZkClient;
 import com.github.fantasticlab.rpc.core.zookeeper.ZkClientImpl;
-import org.springframework.beans.factory.xml.XmlBeanFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Hello world!
  *
  */
-//@ImportResource(value = "classpath:*ApplicationContext.xml")
+@Slf4j
 public class RpcServer {
 
-    public static void main( String[] args ) throws InterruptedException {
-        System.out.println( "RpcServer starting ......\n" );
+    private Integer port;
+
+    private String group;
+
+    //localhost:2181
+    private String zk;
+
+    private NettyServer server;
+
+    private ZkClient zkClient;
+
+    private ProviderRegistry providerRegistry;
+
+    private ServiceRegistry serviceRegistry;
+
+
+    // "localhost:2181"
+    public RpcServer(String zk, Integer port, String group) throws FrpcZkException {
+        this.port = port;
+        this.group = group;
+        this.zk = zk;
 
         // init zookeeper
-        ZkClient zkClient = new ZkClientImpl();
+        this.zkClient = new ZkClientImpl(zk);
         // init provider registry
-        ProviderRegistry providerRegistry = new ZKProviderRegistry(zkClient);
+        this.providerRegistry = new ZKProviderRegistry(zkClient);
         // init service registry
-        ServiceRegistry serviceRegistry = new ServiceRegistryImpl("test", providerRegistry);
-        // registry HelloService
-        serviceRegistry.register(HelloServiceImpl.class);
-//        XmlWebApplicationContext ctx = new XmlWebApplicationContext();
-//        FrpcLoader frpcLoader = new FrpcLoader(serviceRegistry, xbf);
-//        frpcLoader.scan();
+        this.serviceRegistry = new ServiceRegistryImpl(group, this.port, providerRegistry);
+        // init rpc server
+        this.server = new NettyServer(port, serviceRegistry);
+        try {
+            server.start();
+        } catch (InterruptedException e) {
+            String errMsg = "RpcServer start failed";
+            log.error(errMsg, e);
+            throw new FrpcZkException(errMsg, e);
+        }
+        log.info("RpcServer starting ...");
+    }
 
-        NettyServer server = new NettyServer(8080, serviceRegistry);
-        server.start();
+    public void register(Class<?> clazz) {
+        this.serviceRegistry.register(clazz);
+    }
 
+    public static void main(String[] args) throws FrpcZkException {
+
+        log.info("RpcServerTest start");
+
+        String zk = "localhost:2181";
+        Integer port = 8080;
+        String group = "test";
+
+        RpcServer rpcServer = new RpcServer(zk, port, group);
+//        rpcServer.register(HelloServiceImpl.class);
+
+        ProviderBean providerBean = new ProviderBean(HelloServiceImpl.class, rpcServer);
     }
 }
