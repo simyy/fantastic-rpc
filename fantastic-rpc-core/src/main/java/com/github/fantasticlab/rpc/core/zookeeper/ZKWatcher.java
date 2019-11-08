@@ -47,7 +47,8 @@ public class ZKWatcher implements Watcher {
             case NodeDataChanged:
                 break;
             case NodeChildrenChanged:
-                this.zk.getChildren(path, this);
+                log.info("NodeChildrenChanged path={}", path);
+                this.zk.getChildren(path, new ZKWatcher(this.zk, this.eventHandler));
                 break;
             case DataWatchRemoved:
                 break;

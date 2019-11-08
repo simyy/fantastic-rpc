@@ -1,14 +1,31 @@
 package com.github.fantasticlab.rpc.core;
 
-import com.github.fantasticlab.rpc.core.exception.FrpcInvokeException;
+import com.github.fantasticlab.rpc.core.exception.FrpcException;
 import com.github.fantasticlab.rpc.core.meta.ProviderNode;
 
 import java.util.List;
 
 public interface Discovery {
 
-    List<ProviderNode> find(String service, String group) throws FrpcInvokeException;
+    /**
+     * Find the service/group in cache, if not exist,
+     * pull from configuration(ex zookeeper and etcd).
+     *
+     * @param service
+     * @param group
+     * @return
+     * @throws FrpcException
+     */
+    List<ProviderNode> find(String service, String group) throws FrpcException;
 
-    List<ProviderNode> find(String service, String group, boolean autoRetry) throws FrpcInvokeException;
+    /**
+     * Reload the service/group, even through cached.
+     *
+     * @param service
+     * @param group
+     * @return
+     * @throws FrpcException
+     */
+    List<ProviderNode> reload(String service, String group) throws FrpcException;
 
 }

@@ -5,14 +5,14 @@ import com.github.fantasticlab.rpc.core.context.InvokeResponseContext;
 import com.github.fantasticlab.rpc.core.exception.FrpcInvokeException;
 import com.github.fantasticlab.rpc.core.exception.FrpcRegistryException;
 import com.github.fantasticlab.rpc.core.context.InvokeRequestContext;
-import com.github.fantasticlab.rpc.core.meta.BaseNode;
+import com.github.fantasticlab.rpc.core.meta.Address;
 import com.github.fantasticlab.rpc.core.meta.ProviderNode;
 import com.github.fantasticlab.rpc.core.registry.ProviderRegistry;
-import com.github.fantasticlab.rpc.core.registry.ZKProviderRegistry;
+import com.github.fantasticlab.rpc.core.registry.ZookeeperProviderRegistry;
 import com.github.fantasticlab.rpc.core.test.HelloService;
 import com.github.fantasticlab.rpc.core.util.NetUtils;
-import com.github.fantasticlab.rpc.core.zookeeper.ZkClient;
-import com.github.fantasticlab.rpc.core.zookeeper.ZkClientImpl;
+import com.github.fantasticlab.rpc.core.zookeeper.ZookeeperClient;
+import com.github.fantasticlab.rpc.core.zookeeper.ZookeeperClientImpl;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -59,10 +59,11 @@ public class ServiceRegistryImpl implements ServiceRegistry {
 
             serviceMap.put(registerValue, serviceNode);
 
-            ProviderNode providerNode = new ProviderNode();
+            Address address = new Address(NetUtils.getLocalIp(), this.port);
+            ProviderNode providerNode = new ProviderNode(this.group, registerValue, address.toString());
             providerNode.setService(registerValue);
             providerNode.setGroup(this.group);
-            BaseNode.Address address = new BaseNode.Address(NetUtils.getLocalIp(), this.port);
+
             providerNode.setAddress(address);
             long now = new Date().getTime();
             providerNode.setRegisterTime(now);
@@ -121,8 +122,8 @@ public class ServiceRegistryImpl implements ServiceRegistry {
 
     public static void main(String[] args) throws Exception {
 
-        ZkClient zkClient = new ZkClientImpl("localhost:2181");
-        ProviderRegistry providerRegistry = new ZKProviderRegistry(zkClient);
+        ZookeeperClient zookeeperClient = new ZookeeperClientImpl("localhost:2181");
+        ProviderRegistry providerRegistry = new ZookeeperProviderRegistry(zookeeperClient);
 
         ServiceRegistry serviceRegistry = new ServiceRegistryImpl("test", 8080, providerRegistry);
 

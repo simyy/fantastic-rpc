@@ -1,15 +1,15 @@
 package com.github.fantasticlab.rpc.core;
 
 import com.github.fantasticlab.rpc.core.bean.ProviderBean;
-import com.github.fantasticlab.rpc.core.exception.FrpcZkException;
+import com.github.fantasticlab.rpc.core.exception.FrpcZookeeperException;
 import com.github.fantasticlab.rpc.core.net.NettyServer;
 import com.github.fantasticlab.rpc.core.provider.ServiceRegistry;
 import com.github.fantasticlab.rpc.core.provider.ServiceRegistryImpl;
 import com.github.fantasticlab.rpc.core.registry.ProviderRegistry;
-import com.github.fantasticlab.rpc.core.registry.ZKProviderRegistry;
+import com.github.fantasticlab.rpc.core.registry.ZookeeperProviderRegistry;
 import com.github.fantasticlab.rpc.core.test.HelloServiceImpl;
-import com.github.fantasticlab.rpc.core.zookeeper.ZkClient;
-import com.github.fantasticlab.rpc.core.zookeeper.ZkClientImpl;
+import com.github.fantasticlab.rpc.core.zookeeper.ZookeeperClient;
+import com.github.fantasticlab.rpc.core.zookeeper.ZookeeperClientImpl;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -28,7 +28,7 @@ public class RpcServer {
 
     private NettyServer server;
 
-    private ZkClient zkClient;
+    private ZookeeperClient zookeeperClient;
 
     private ProviderRegistry providerRegistry;
 
@@ -36,15 +36,15 @@ public class RpcServer {
 
 
     // "localhost:2181"
-    public RpcServer(String zk, Integer port, String group) throws FrpcZkException {
+    public RpcServer(String zk, Integer port, String group) throws FrpcZookeeperException {
         this.port = port;
         this.group = group;
         this.zk = zk;
 
         // init zookeeper
-        this.zkClient = new ZkClientImpl(zk);
+        this.zookeeperClient = new ZookeeperClientImpl(zk);
         // init provider registry
-        this.providerRegistry = new ZKProviderRegistry(zkClient);
+        this.providerRegistry = new ZookeeperProviderRegistry(zookeeperClient);
         // init service registry
         this.serviceRegistry = new ServiceRegistryImpl(group, this.port, providerRegistry);
         // init rpc server
@@ -54,7 +54,7 @@ public class RpcServer {
         } catch (InterruptedException e) {
             String errMsg = "RpcServer start failed";
             log.error(errMsg, e);
-            throw new FrpcZkException(errMsg, e);
+            throw new FrpcZookeeperException(errMsg, e);
         }
         log.info("RpcServer starting ...");
     }
@@ -63,7 +63,7 @@ public class RpcServer {
         this.serviceRegistry.register(clazz);
     }
 
-    public static void main(String[] args) throws FrpcZkException {
+    public static void main(String[] args) throws FrpcZookeeperException {
 
         log.info("RpcServerTest start");
 
