@@ -1,4 +1,4 @@
-package com.github.fantasticlab.rpc.core;
+package com.github.fantasticlab.rpc.core.discovery;
 
 public interface NodeDiscovery {
 

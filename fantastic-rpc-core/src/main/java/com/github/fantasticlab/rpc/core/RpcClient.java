@@ -134,6 +134,7 @@ public class RpcClient  {
                 String service = nettyClient.getService();
                 List<ProviderNode> nodes = this.zooKeeperServiceDiscovery.find(service, this.group);
                 if (nodes != null && nodes.size() > 0) {
+                    // random balance
                     LoadBalance loadBalance = new RandomLoadBalance();
                     ProviderNode node = loadBalance.getOne(nodes);
                     nettyClient.setHost(node.getAddress().getHost());

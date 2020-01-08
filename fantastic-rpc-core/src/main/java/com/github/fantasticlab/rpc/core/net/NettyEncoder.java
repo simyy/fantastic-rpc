@@ -1,6 +1,6 @@
 package com.github.fantasticlab.rpc.core.net;
 
-import com.github.fantasticlab.rpc.core.Serializer;
+import com.github.fantasticlab.rpc.core.serialize.Serializer;
 import com.github.fantasticlab.rpc.core.net.protocol.Packet;
 import com.github.fantasticlab.rpc.core.net.protocol.PacketFrame;
 import io.netty.buffer.ByteBuf;

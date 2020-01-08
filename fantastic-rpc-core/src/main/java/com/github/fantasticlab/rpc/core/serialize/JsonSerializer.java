@@ -2,7 +2,6 @@ package com.github.fantasticlab.rpc.core.serialize;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.fantasticlab.rpc.core.Serializer;
 import com.github.fantasticlab.rpc.core.net.protocol.Packet;
 import com.github.fantasticlab.rpc.core.net.protocol.ReqPacket;
 

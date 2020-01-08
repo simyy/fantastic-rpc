@@ -12,7 +12,7 @@ public class ProviderNode extends BaseNode {
     @Override
     public String toString() {
         return "ProviderNode{" +
-                ", group='" + group + '\'' +
+                "group='" + group + '\'' +
                 ", service='" + service + '\'' +
                 ", address='" + address + '\'' +
                 '}';

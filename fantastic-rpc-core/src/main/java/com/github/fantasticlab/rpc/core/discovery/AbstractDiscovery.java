@@ -1,6 +1,5 @@
 package com.github.fantasticlab.rpc.core.discovery;
 
-import com.github.fantasticlab.rpc.core.Discovery;
 import com.github.fantasticlab.rpc.core.exception.FrpcException;
 import com.github.fantasticlab.rpc.core.meta.ProviderNode;
 import com.github.fantasticlab.rpc.core.util.PoolUtil;

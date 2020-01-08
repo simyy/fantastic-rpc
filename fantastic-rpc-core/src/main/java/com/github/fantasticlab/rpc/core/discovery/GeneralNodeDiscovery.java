@@ -1,7 +1,7 @@
 //package com.github.fantasticlab.rpc.core.discovery;
 //
-//import com.github.fantasticlab.rpc.core.NodeDiscovery;
-//import com.github.fantasticlab.rpc.core.DiscoveryWatcher;
+//import com.github.fantasticlab.rpc.core.discovery.NodeDiscovery;
+//import com.github.fantasticlab.rpc.core.discovery.DiscoveryWatcher;
 //
 //import java.util.List;
 //import java.util.concurrent.CopyOnWriteArrayList;

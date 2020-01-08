@@ -1,6 +1,5 @@
 package com.github.fantasticlab.rpc.core;
 
-import com.github.fantasticlab.rpc.core.bean.ProviderBean;
 import com.github.fantasticlab.rpc.core.exception.FrpcZookeeperException;
 import com.github.fantasticlab.rpc.core.net.NettyServer;
 import com.github.fantasticlab.rpc.core.provider.ServiceRegistry;
@@ -72,8 +71,8 @@ public class RpcServer {
         String group = "test";
 
         RpcServer rpcServer = new RpcServer(zk, port, group);
-//        rpcServer.register(HelloServiceImpl.class);
+        rpcServer.register(HelloServiceImpl.class);
 
-        ProviderBean providerBean = new ProviderBean(HelloServiceImpl.class, rpcServer);
+        // ProviderBean providerBean = new ProviderBean(HelloServiceImpl.class, rpcServer);
     }
 }

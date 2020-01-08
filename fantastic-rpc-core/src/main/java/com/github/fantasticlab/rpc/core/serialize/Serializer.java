@@ -1,4 +1,4 @@
-package com.github.fantasticlab.rpc.core;
+package com.github.fantasticlab.rpc.core.serialize;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.fantasticlab.rpc.core.net.protocol.Packet;

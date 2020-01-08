@@ -1,7 +1,7 @@
 package com.github.fantasticlab.rpc.core.net.protocol;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.github.fantasticlab.rpc.core.Serializer;
+import com.github.fantasticlab.rpc.core.serialize.Serializer;
 import com.github.fantasticlab.rpc.core.serialize.JsonSerializer;
 import com.github.fantasticlab.rpc.core.serialize.SerializerType;
 import io.netty.buffer.ByteBuf;

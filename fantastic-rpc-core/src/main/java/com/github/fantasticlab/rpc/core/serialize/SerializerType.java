@@ -1,7 +1,5 @@
 package com.github.fantasticlab.rpc.core.serialize;
 
-import com.github.fantasticlab.rpc.core.Serializer;
-
 public enum SerializerType {
 
     JSON(0, JsonSerializer.class),
