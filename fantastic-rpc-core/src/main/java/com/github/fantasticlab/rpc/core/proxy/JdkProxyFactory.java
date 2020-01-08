@@ -29,10 +29,14 @@ public class JdkProxyFactory extends AbstractProxyFactory {
         ProxyFactory proxy = new JdkProxyFactory(zk, group);
         HelloService helloService = proxy.getProxy(HelloService.class);
 
-        Thread.sleep(2000);
 
-        System.out.println(helloService.sayHi());
-        System.out.println(helloService.sayHi("George"));
+        while (true) {
+
+            Thread.sleep(2000);
+
+            System.out.println(helloService.sayHi());
+            System.out.println(helloService.sayHi("George"));
+        }
     }
 
 }
