@@ -97,7 +97,7 @@ public class RpcClient  {
 
             nettyClient.connect(
                     () -> clientPool.put(service, nettyClient),
-                    () -> retryClientQueue.add(nettyClient));
+                    () -> addRetryClient(nettyClient));
 
             return nettyClient;
         }
@@ -114,10 +114,20 @@ public class RpcClient  {
                     // remove client
                     NettyClient nettyClient = clientPool.remove(service);
                     nettyClient.setConnected(false);
-                    retryClientQueue.add(nettyClient);
+                    addRetryClient(nettyClient);
                 }
             }
         }
+    }
+
+    private void addRetryClient(NettyClient nettyClient) {
+        log.info("RpcClient addRetryClient client={}", nettyClient);
+        retryClientQueue.add(nettyClient);
+    }
+
+    private void addFailedClient(NettyClient nettyClient) {
+        log.info("RpcClient addFailedClient client={}", nettyClient);
+        failedClientQueue.add(nettyClient);
     }
 
     private void retryInitClient() {
@@ -141,19 +151,16 @@ public class RpcClient  {
                     nettyClient.setPort(node.getAddress().getPort());
                     nettyClient.connect(
                             () -> clientPool.put(service, nettyClient),
-                            () -> failedClientQueue.add(nettyClient));
+                            () -> addFailedClient(nettyClient));
                     continue;
-                } else {
-                    failedClientQueue.add(nettyClient);
                 }
-
-                if (!failedClientQueue.isEmpty()) {
-                    retryClientQueue.add(failedClientQueue.poll());
-                }
-
             }
 
             log.info("RpcClient loop retry end");
+
+            if (!failedClientQueue.isEmpty()) {
+                addRetryClient(failedClientQueue.poll());
+            }
 
             try {
                 Thread.sleep(2000);

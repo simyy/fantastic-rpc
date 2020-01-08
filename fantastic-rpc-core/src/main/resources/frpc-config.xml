@@ -3,10 +3,27 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="proxyFactory" class="com.github.fantasticlab.rpc.core.proxy.CglibProxyFactory">
-        <constructor-arg name="group" value="test"/>
+
+    <!-- Provider -->
+    <bean id="providerInitializer" class="com.github.fantasticlab.rpc.core.initializer.ProviderInitializer">
         <constructor-arg name="zk" value="localhost:2181"/>
+        <constructor-arg name="port" value="8080"/>
+        <constructor-arg name="group" value="test"/>
     </bean>
+
+    <bean id="providerBean1" class="com.github.fantasticlab.rpc.core.initializer.ProviderBean">
+        <constructor-arg name="initializer" ref="providerInitializer" />
+        <constructor-arg name="clazz">
+            <value type="java.lang.Class">com.github.fantasticlab.rpc.core.test.HelloServiceImpl</value>
+        </constructor-arg>
+    </bean>
+
+    <!-- Consumer -->
+
+    <!--<bean id="proxyFactory" class="com.github.fantasticlab.rpc.core.proxy.CglibProxyFactory">-->
+        <!--<constructor-arg name="group" value="test"/>-->
+        <!--<constructor-arg name="zk" value="localhost:2181"/>-->
+    <!--</bean>-->
 
 
 

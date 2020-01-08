@@ -73,6 +73,6 @@ public class RpcServer {
         RpcServer rpcServer = new RpcServer(zk, port, group);
         rpcServer.register(HelloServiceImpl.class);
 
-        // ProviderBean providerBean = new ProviderBean(HelloServiceImpl.class, rpcServer);
+        // ProviderInitializer providerBean = new ProviderInitializer(HelloServiceImpl.class, rpcServer);
     }
 }

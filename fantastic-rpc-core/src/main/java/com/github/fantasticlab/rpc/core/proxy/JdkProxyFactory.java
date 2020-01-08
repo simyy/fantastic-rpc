@@ -2,12 +2,14 @@ package com.github.fantasticlab.rpc.core.proxy;
 
 import com.github.fantasticlab.rpc.core.exception.FrpcZookeeperException;
 import com.github.fantasticlab.rpc.core.test.HelloService;
+import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Proxy;
 
 /**
  * JDK代理实现
  */
+@Slf4j
 public class JdkProxyFactory extends AbstractProxyFactory {
 
     public JdkProxyFactory(String zk, String group) throws FrpcZookeeperException, InterruptedException {
@@ -34,8 +36,13 @@ public class JdkProxyFactory extends AbstractProxyFactory {
 
             Thread.sleep(2000);
 
-            System.out.println(helloService.sayHi());
-            System.out.println(helloService.sayHi("George"));
+            try {
+
+                System.out.println(helloService.sayHi());
+                System.out.println(helloService.sayHi("George"));
+            } catch (Exception e) {
+                log.error("exception 111", e);
+            }
         }
     }
 
