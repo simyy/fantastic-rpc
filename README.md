@@ -1,5 +1,7 @@
 ## Fantastic-RPC
 
+[![Build Status](https://travis-ci.org/fantasticlab/fantastic-rpc.svg?branch=master)
+
 `Fantastic-RPC` is a RPC framework based on Java.
  
 ### Architecture
