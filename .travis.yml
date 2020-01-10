@@ -1,5 +1,5 @@
 language: java
 jdk:
 - openjdk8
-install: cd fantastic-rpc && mvn install -DskipTests=true -Dmaven.javadoc.skip=true
+install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true
 script: mvn test
