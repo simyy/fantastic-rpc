@@ -1,7 +1,7 @@
 ## Fantastic-RPC
 
 [![Build Status](https://travis-ci.org/fantasticlab/fantastic-rpc.svg?branch=master)](https://travis-ci.org/fantasticlab/fantastic-rpc)
-![JDK](https://img.shields.io/badge/jdk-openjdk8-blueviolet)
+![JDK](https://img.shields.io/badge/jdk-openjdk8-orange)
 ![GitHub](https://img.shields.io/github/license/fantasticlab/fantastic-rpc)
 
 `Fantastic-RPC` is a RPC framework based on Java.
