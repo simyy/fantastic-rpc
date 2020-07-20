@@ -6,15 +6,11 @@ import com.github.fantasticlab.rpc.core.provider.ServiceRegistry;
 import com.github.fantasticlab.rpc.core.provider.ServiceRegistryImpl;
 import com.github.fantasticlab.rpc.core.registry.ProviderRegistry;
 import com.github.fantasticlab.rpc.core.registry.ZookeeperProviderRegistry;
-import com.github.fantasticlab.rpc.core.test.HelloServiceImpl;
+import com.github.fantasticlab.rpc.core.example.HelloServiceImpl;
 import com.github.fantasticlab.rpc.core.zookeeper.ZookeeperClient;
 import com.github.fantasticlab.rpc.core.zookeeper.ZookeeperClientImpl;
 import lombok.extern.slf4j.Slf4j;
 
-/**
- * Hello world!
- *
- */
 @Slf4j
 public class RpcServer {
 
@@ -60,19 +56,5 @@ public class RpcServer {
 
     public void register(Class<?> clazz) {
         this.serviceRegistry.register(clazz);
-    }
-
-    public static void main(String[] args) throws FrpcZookeeperException {
-
-        log.info("RpcServerTest start");
-
-        String zk = "localhost:2181";
-        Integer port = 8080;
-        String group = "test";
-
-        RpcServer rpcServer = new RpcServer(zk, port, group);
-        rpcServer.register(HelloServiceImpl.class);
-
-        // ProviderInitializer providerBean = new ProviderInitializer(HelloServiceImpl.class, rpcServer);
     }
 }

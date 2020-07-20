@@ -118,43 +118,4 @@ public class ZookeeperClientImpl implements ZookeeperClient {
         }
     }
 
-    public static void main(String[] args) throws FrpcZookeeperException {
-
-        System.out.println("start");
-
-        ZookeeperClient zookeeperClient = new ZookeeperClientImpl("localhost:2181");
-        assert zookeeperClient != null;
-
-        System.out.println(">>> 1. add watcher");
-        zookeeperClient.addWatcher("hello", "test", NodeType.PROVIDER, () -> { System.out.println("NodeWatcher hello/test/provider"); return null;});
-
-        BaseNode providerNode1 = new BaseNode(NodeType.PROVIDER, "test", "hello", "127.0.0.1:8000");
-        BaseNode providerNode2 = new BaseNode(NodeType.PROVIDER, "test", "hello", "127.0.0.1:8001");
-
-        System.out.println(">>> 2. registerNode1");
-        zookeeperClient.register(providerNode1);
-
-        List<String> addresses = zookeeperClient.findAddress("hello", "test",  NodeType.PROVIDER);
-        System.out.println(">>> 3. findAddress rs=" + addresses);
-
-
-        System.out.println(">>> 4. unregisterNode1");
-        zookeeperClient.unregister(providerNode1);
-
-        List<String> addresses1 = zookeeperClient.findAddress("hello", "test",  NodeType.PROVIDER);
-        System.out.println(">>> 5. findAddress rs=" + addresses1);
-
-        System.out.println(">>> 6. registerNode2");
-        zookeeperClient.register(providerNode2);
-
-        List<String> addresses2 = zookeeperClient.findAddress("hello", "test",  NodeType.PROVIDER);
-        System.out.println(">>> 7. findAddress rs=" + addresses2);
-
-        System.out.println(">>> 8. unregisterNode2");
-        zookeeperClient.unregister(providerNode2);
-
-        System.out.println("end");
-
-    }
-
 }

@@ -8,7 +8,7 @@ import com.github.fantasticlab.rpc.core.exception.FrpcZookeeperException;
 import com.github.fantasticlab.rpc.core.meta.ProviderNode;
 import com.github.fantasticlab.rpc.core.net.NettyClient;
 import com.github.fantasticlab.rpc.core.net.protocol.ReqPacket;
-import com.github.fantasticlab.rpc.core.test.HelloService;
+import com.github.fantasticlab.rpc.core.example.HelloService;
 import com.github.fantasticlab.rpc.core.zookeeper.ZookeeperClient;
 import com.github.fantasticlab.rpc.core.zookeeper.ZookeeperClientImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -170,39 +170,4 @@ public class RpcClient  {
         }
 
     }
-
-    public static void main(String[] args ) throws InterruptedException, FrpcZookeeperException {
-
-        String zk = "localhost:2181";
-        String group = "test";
-
-        RpcClient client = new RpcClient(zk, group);
-
-        Class<?>[] argTypes = new Class<?>[1];
-        argTypes[0] = String.class;
-        Object[] argss = new Object[1];
-        argss[0] = "Jack";
-
-        while (true) {
-
-            log.info("client.invoke sayHi");
-
-            try {
-                String rs1 = (String) client.invoke(HelloService.class.getSimpleName(), "sayHi", null, null);
-                log.info(rs1);
-            } catch (FrpcInvokeException e) {
-                log.error("FrpcInvokeException",  e);
-            }
-
-            Thread.sleep(8000);
-
-//            try {
-//                String rs2 = (String) client.invoke(HelloService.class.getSimpleName(), "sayHi", argTypes, argss);
-//            System.out.println(rs2);
-//            } catch (FrpcInvokeException e) {
-//
-//            }
-        }
-    }
-
 }

@@ -14,7 +14,7 @@
     <bean id="providerBean1" class="com.github.fantasticlab.rpc.core.initializer.ProviderBean">
         <constructor-arg name="initializer" ref="providerInitializer" />
         <constructor-arg name="clazz">
-            <value type="java.lang.Class">com.github.fantasticlab.rpc.core.test.HelloServiceImpl</value>
+            <value type="java.lang.Class">com.github.fantasticlab.rpc.core.example.HelloServiceImpl</value>
         </constructor-arg>
     </bean>
 

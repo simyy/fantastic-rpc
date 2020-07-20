@@ -3,7 +3,7 @@ package com.github.fantasticlab.rpc.core.initializer;
 import com.github.fantasticlab.rpc.core.exception.FrpcZookeeperException;
 import com.github.fantasticlab.rpc.core.proxy.JdkProxyFactory;
 import com.github.fantasticlab.rpc.core.proxy.ProxyFactory;
-import com.github.fantasticlab.rpc.core.test.HelloService;
+import com.github.fantasticlab.rpc.core.example.HelloService;
 
 public class ConsumerInitializer {
 
@@ -23,14 +23,4 @@ public class ConsumerInitializer {
         return this.proxyFactory.getProxy(clazz);
     }
 
-    public static void main(String[] args) throws FrpcZookeeperException, InterruptedException {
-
-        String zk = "localhost:2181";
-        String group = "test";
-
-        ConsumerInitializer initializer = new ConsumerInitializer(zk, group);
-        HelloService helloService = initializer.getService(HelloService.class);
-        helloService.sayHi("Hello!!!");
-
-    }
 }

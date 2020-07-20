@@ -1,4 +1,4 @@
-package com.github.fantasticlab.rpc.core.test;
+package com.github.fantasticlab.rpc.core.example;
 
 import com.github.fantasticlab.rpc.core.annotation.Frpc;
 

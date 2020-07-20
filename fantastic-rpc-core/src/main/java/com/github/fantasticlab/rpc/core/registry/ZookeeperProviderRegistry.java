@@ -23,12 +23,4 @@ public class ZookeeperProviderRegistry extends AbstractZookeeperRegister<Provide
         registry.register(providerNode);
     }
 
-    public static void main(String[] args) throws Exception {
-
-        ZookeeperClient zookeeperClient = new ZookeeperClientImpl("localhost:2181");
-        ZookeeperProviderRegistry.testRegister(zookeeperClient, "hello", "test", "127.0.0.1:8000");
-        List<String> addresses = zookeeperClient.findAddress("hello", "test", NodeType.PROVIDER);
-        System.out.println(addresses);
-
-    }
 }

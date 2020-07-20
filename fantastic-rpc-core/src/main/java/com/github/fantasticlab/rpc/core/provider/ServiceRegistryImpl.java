@@ -9,7 +9,7 @@ import com.github.fantasticlab.rpc.core.meta.Address;
 import com.github.fantasticlab.rpc.core.meta.ProviderNode;
 import com.github.fantasticlab.rpc.core.registry.ProviderRegistry;
 import com.github.fantasticlab.rpc.core.registry.ZookeeperProviderRegistry;
-import com.github.fantasticlab.rpc.core.test.HelloService;
+import com.github.fantasticlab.rpc.core.example.HelloService;
 import com.github.fantasticlab.rpc.core.util.NetUtils;
 import com.github.fantasticlab.rpc.core.zookeeper.ZookeeperClient;
 import com.github.fantasticlab.rpc.core.zookeeper.ZookeeperClientImpl;
@@ -120,38 +120,4 @@ public class ServiceRegistryImpl implements ServiceRegistry {
         return null;
     }
 
-    public static void main(String[] args) throws Exception {
-
-        ZookeeperClient zookeeperClient = new ZookeeperClientImpl("localhost:2181");
-        ProviderRegistry providerRegistry = new ZookeeperProviderRegistry(zookeeperClient);
-
-        ServiceRegistry serviceRegistry = new ServiceRegistryImpl("test", 8080, providerRegistry);
-
-        serviceRegistry.register(HelloService.class);
-
-        InvokeRequestContext context = new InvokeRequestContext();
-        context.setService("HelloService");
-        context.setMethod("sayHi");
-        context.setArgTypes(null);
-        context.setArgs(null);
-        serviceRegistry.invoke(context);
-
-        InvokeRequestContext context2 = new InvokeRequestContext();
-        context2.setService("HelloService");
-        context2.setMethod("sayHi");
-        Class<?>[] argTypes = new Class<?>[1];
-        argTypes[0] = String.class;
-        context2.setArgTypes(argTypes);
-        Object[] argss = new Object[1];
-        argss[0] = "Jack";
-        context2.setArgs(argss);
-        serviceRegistry.invoke(context2);
-
-        try {
-            Thread.sleep(30000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-    }
 }

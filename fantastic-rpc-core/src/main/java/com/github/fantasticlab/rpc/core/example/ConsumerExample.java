@@ -1,4 +1,4 @@
-package com.github.fantasticlab.rpc.core.test;
+package com.github.fantasticlab.rpc.core.example;
 
 import com.github.fantasticlab.rpc.core.exception.FrpcZookeeperException;
 import com.github.fantasticlab.rpc.core.initializer.ConsumerInitializer;

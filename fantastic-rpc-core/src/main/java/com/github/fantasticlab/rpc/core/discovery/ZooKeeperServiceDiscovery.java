@@ -100,31 +100,4 @@ public class ZooKeeperServiceDiscovery extends AbstractDiscovery implements Disc
         }
     }
 
-
-    public static void main(String[] args) throws InterruptedException, FrpcRegistryException, FrpcInvokeException, FrpcZookeeperException {
-
-        ZookeeperClient zookeeperClient = new ZookeeperClientImpl("localhost:2181");
-//        System.out.print("Register\t127.0.0.1:8000\n");
-//        ZookeeperProviderRegistry.testRegister(zookeeperClient, "hello", "test", "127.0.0.1:8000");
-
-        ZooKeeperServiceDiscovery zooKeeperServiceDiscovery = new ZooKeeperServiceDiscovery(zookeeperClient);
-//        List<ProviderNode> nodes = zooKeeperServiceDiscovery.find("hello", "test");
-//        Thread.sleep(2000);
-//        System.out.print("Register\t127.0.0.2:8000\n");
-//        ZookeeperProviderRegistry.testRegister(zookeeperClient, "hello", "test", "127.0.0.2:8000");
-//        Thread.sleep(2000);
-//        System.out.print("Register\t127.0.0.3:8000\n");
-//        ZookeeperProviderRegistry.testRegister(zookeeperClient, "hello", "test", "127.0.0.3:8000");
-//        Thread.sleep(5000);
-
-        try {
-            zooKeeperServiceDiscovery.find("HelloService", "test");
-        } catch (Exception e) {
-
-        }
-
-        Thread.sleep(300000);
-
-    }
-
 }
